@@ -32,11 +32,9 @@ jobs:
 
     
     - name: Load Docker image into Kind cluster
-      if: contains(runner.labels, 'self-hosted')
       run: kind load docker-image $IMAGE_NAME:$IMAGE_TAG
 
     - name: Deploy to Kubernetes
-      if: contains(runner.labels, 'self-hosted')
       run: |
         kubectl apply -f deployment.yaml
         kubectl apply -f service.yaml

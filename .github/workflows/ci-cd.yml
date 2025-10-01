@@ -1,0 +1,43 @@
+name: CI/CD - Build, Push Docker Image & Deploy
+
+
+on:
+  push:
+    branches:
+      - 'master'   
+
+env:
+  IMAGE_NAME: imjayeshb63/wisecow
+  IMAGE_TAG: latest
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted  
+
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_NAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build Docker image
+      run: docker build -t $IMAGE_NAME:$IMAGE_TAG .
+
+    - name: Push Docker image to Docker Hub
+      run: docker push $IMAGE_NAME:$IMAGE_TAG
+
+    
+    - name: Load Docker image into Kind cluster
+      if: runner.labels.contains('self-hosted')
+      run: kind load docker-image $IMAGE_NAME:$IMAGE_TAG
+
+    - name: Deploy to Kubernetes
+      if: runner.labels.contains('self-hosted')
+      run: |
+        kubectl apply -f deployment.yaml
+        kubectl apply -f service.yaml
+

@@ -19,6 +19,5 @@ spec:
           image: imjayeshb63/wisecow:latest
           ports:
             - containerPort: 4499
-      imagePullSecrets:
-        - name: my-dockerhub-secret
+
 
